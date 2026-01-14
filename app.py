@@ -5,6 +5,8 @@ from models import db
 from flask_jwt_extended import JWTManager
 from routes.auth import auth_bp
 from routes.tasks import tasks_bp
+from flasgger import Swagger
+
 
 load_dotenv()
 
@@ -19,7 +21,7 @@ def create_app():
     # Init
     db.init_app(app)
     JWTManager(app)
-
+    Swagger(app)
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(tasks_bp, url_prefix='/tasks')
