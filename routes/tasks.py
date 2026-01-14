@@ -7,6 +7,33 @@ tasks_bp = Blueprint('tasks', __name__)
 @tasks_bp.route('', methods=['POST'])
 @jwt_required()
 def create_task():
+    """
+    Create a new task
+    ---
+    parameters:
+      - name: Authorization
+        in: header
+        type: string
+        required: true
+        description: "JWT Token (Format: Bearer <token>)"
+      - name: body
+        in: body
+        required: true
+        schema:
+          required:
+            - title
+          properties:
+            title:
+              type: string
+            description:
+              type: string
+            category:
+              type: string
+    responses:
+      201:
+        description: Task created successfully.
+    """
+    
     data = request.get_json()
     errors = task_schema.validate(data)
     if errors:
@@ -26,6 +53,23 @@ def create_task():
 @tasks_bp.route('', methods=['GET'])
 @jwt_required()
 def get_tasks():
+    """
+    Get all tasks for the logged-in user
+    ---
+    parameters:
+      - name: Authorization
+        in: header
+        type: string
+        required: true
+      - name: category
+        in: query
+        type: string
+        description: Filter tasks by category name.
+    responses:
+      200:
+        description: A list of tasks.
+    """
+    
     current_user_id = get_jwt_identity()
     category = request.args.get('category')
     
@@ -39,6 +83,30 @@ def get_tasks():
 @tasks_bp.route('/<int:task_id>', methods=['PUT'])
 @jwt_required()
 def update_task(task_id):
+    """
+    Update a task status or details
+    ---
+    parameters:
+      - name: Authorization
+        in: header
+        type: string
+        required: true
+      - name: task_id
+        in: path
+        type: integer
+        required: true
+      - name: body
+        in: body
+        required: true
+        schema:
+          properties:
+            is_completed:
+              type: boolean
+    responses:
+      200:
+        description: Task updated successfully.
+    """
+    
     current_user_id = get_jwt_identity()
     task = Task.query.filter_by(id=task_id, user_id=current_user_id).first_or_404()
     
